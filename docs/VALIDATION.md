@@ -39,6 +39,8 @@ GitHub 的全新 Windows 环境曾发现短路径与完整路径身份不一致�
 
 Native tests run the actual packaged executable. OS folder/save-dialog results are simulated to verify IPC and file operations. The installer wizard itself, macOS/Linux packages, external VS Code windows and private GitHub PR authentication have not been tested. The installer is unsigned; there are no automatic updates.
 
+本机一次 0.3.2 桌面自动化在创建示例时窗口提前关闭，未得到进程错误原因；单独重试示例创建和随后完整 8 组复验均通过。保留这一观察，不能据此认定所有启动环境都已验证。
+
 ## 数据与交互
 
 新增覆盖已有分支回滚保护、旧格式迁移快照、未来格式保护、主文件缺失、显式备份恢复、无操作重启、事务对象隔离、并发启动、过期锁、端口绑定失败、请求取消后的退出等待、设置写入失败、非法请求，以及示例设置中断后的继续处理。

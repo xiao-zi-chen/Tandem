@@ -203,9 +203,21 @@ try {
   );
   assert.ok(menus.includes('文件'));
   assert.ok(menus.includes('编辑'));
-  await instance.evaluate(({ BrowserWindow }) =>
-    BrowserWindow.getAllWindows()[0].setSize(1280, 850),
-  );
+  const expectedSize = await instance.evaluate(({ BrowserWindow, screen }) => {
+    const window = BrowserWindow.getAllWindows()[0];
+    const display = screen.getDisplayMatching(window.getBounds());
+    // Hosted Windows runners may have only a 1024px virtual display. Request
+    // a size that fits that display so the OS does not clamp it on restart.
+    const width = Math.max(860, Math.min(1280, display.workArea.width - 40));
+    const height = Math.max(640, Math.min(850, display.workArea.height - 40));
+    window.setSize(width, height);
+    return [width, height];
+  });
+  await expect
+    .poll(() =>
+      instance!.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getSize()),
+    )
+    .toEqual(expectedSize);
   assert.deepEqual(errors, []);
   await instance.close();
   instance = undefined;
@@ -217,7 +229,7 @@ try {
   const size = await instance.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].getSize(),
   );
-  assert.deepEqual(size, [1280, 850]);
+  assert.deepEqual(size, expectedSize);
   results.push('Language, window size and repository/task data survive an application restart');
   console.log(
     JSON.stringify(
