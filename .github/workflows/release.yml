@@ -1,0 +1,77 @@
+name: Build Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, for example v0.3.1
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - name: Verify tag and application version
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -ne "v$version") { throw "Tag and application version differ" }
+          "tag=$env:RELEASE_TAG" >> $env:GITHUB_OUTPUT
+      - run: npm ci
+      - run: node node_modules/electron/install.js
+      - run: npm run format:check
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install chromium
+      - run: npm run test:e2e
+      - run: npx electron-builder --win nsis --x64 --publish never
+      - run: npm run test:desktop
+      - run: npm run release:manifest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            release/*/Tandem-Setup-*-x64.exe
+            release/*/SHA256SUMS.txt
+            release/*/release-info.json
+          if-no-files-found: error
+
+  draft:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: artifacts
+      - name: Create draft with verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          mapfile -d '' assets < <(find artifacts -type f -print0)
+          gh release create "$RELEASE_TAG" "${assets[@]}" --verify-tag --draft --title "Tandem $RELEASE_TAG" --generate-notes

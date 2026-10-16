@@ -1,0 +1,26 @@
+name: Bug report / 问题反馈
+description: Report a reproducible problem / 反馈可复现的问题
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version & Windows version / 软件与 Windows 版本
+      placeholder: Tandem 0.3.1, Windows 11 x64
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected result, actual result / 步骤、预期与实际结果
+      description: Include Git version from Settings. Remove private paths, source code and credentials. / 请附设置中的 Git 版本；移除私人路径、源码和凭据。
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Task workspace / 任务工作区
+      options:
+        - New worktree / 新建工作区
+        - Existing branch / 已有分支
+        - Attached checkout / 接入已有目录
+        - Other / 其他

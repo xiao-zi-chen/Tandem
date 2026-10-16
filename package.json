@@ -1,0 +1,104 @@
+{
+  "name": "tandem-workspace",
+  "version": "0.3.1",
+  "private": true,
+  "type": "module",
+  "description": "A local workspace for work that spans repositories.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch server/index.ts --dev",
+    "build": "tsc --noEmit && vite build && esbuild server/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/server/index.js && esbuild desktop/main.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/desktop/main.cjs && esbuild desktop/preload.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist/desktop/preload.cjs",
+    "start": "node dist/server/index.js",
+    "test": "tsx --test tests/core.test.ts tests/reliability.test.ts tests/frontend.test.ts",
+    "test:e2e": "playwright test",
+    "check": "tsc --noEmit",
+    "format": "prettier --write src server desktop shared tests scripts public docs .github package.json tsconfig.json vite.config.ts playwright.config.ts index.html README.md README.zh-CN.md CONTRIBUTING.md",
+    "desktop": "electron .",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:pack": "npm run build && electron-builder --win --x64 --dir",
+    "desktop:dist": "npm run build && electron-builder --win nsis --x64",
+    "test:desktop": "node --import tsx tests/desktop/smoke.ts",
+    "format:check": "prettier --check src server desktop shared tests scripts public docs .github package.json tsconfig.json vite.config.ts playwright.config.ts index.html README.md README.zh-CN.md CONTRIBUTING.md",
+    "release:manifest": "node scripts/release-manifest.mjs"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "electron": "^44.8.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "lucide-react": "^0.468.0"
+  },
+  "main": "dist/desktop/main.cjs",
+  "author": "Tandem",
+  "build": {
+    "appId": "com.tandem.workspace",
+    "productName": "Tandem",
+    "asar": true,
+    "directories": {
+      "output": "release/${version}",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/client/**/*",
+      "dist/desktop/**/*",
+      "build/icon.png",
+      "package.json",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Tandem-Setup-${version}-${arch}.${ext}",
+      "signAndEditExecutable": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Tandem",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": false,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "displayLanguageSelector": true
+    },
+    "publish": null
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiao-zi-chen/Tandem.git"
+  },
+  "homepage": "https://github.com/xiao-zi-chen/Tandem#readme",
+  "bugs": {
+    "url": "https://github.com/xiao-zi-chen/Tandem/issues"
+  }
+}

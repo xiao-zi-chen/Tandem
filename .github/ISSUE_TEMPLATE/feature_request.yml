@@ -1,0 +1,15 @@
+name: Workflow suggestion / 使用建议
+description: Describe a real task Tandem could make easier / 描述希望改善的真实任务
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Current workflow and friction / 当前流程与不便
+      description: What repositories, tools and repeated steps are involved? / 涉及哪些仓库、工具和重复步骤？
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Desired outcome / 希望达到的效果
+      description: What would a successful task look like? / 如何判断这项改进有用？
