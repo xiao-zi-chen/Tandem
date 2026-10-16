@@ -1,13 +1,33 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { realpath, lstat, readFile, access } from 'node:fs/promises';
-import { isAbsolute, relative, resolve, sep, dirname } from 'node:path';
+import { realpathSync } from 'node:fs';
+import { isAbsolute, relative, resolve, sep, dirname, basename, join } from 'node:path';
 import type { ChangedFile, Worktree, DiffResult } from '../shared/types.js';
 import { AppError } from './errors.js';
 
 const exec = promisify(execFile);
-export const pathKey = (path: string) =>
-  process.platform === 'win32' ? resolve(path).toLowerCase() : resolve(path);
+function canonicalPath(path: string): string {
+  let candidate = resolve(path);
+  const suffix: string[] = [];
+  while (true) {
+    try {
+      return join(realpathSync.native(candidate), ...suffix);
+    } catch (error: any) {
+      const parent = dirname(candidate);
+      if (!['ENOENT', 'ENOTDIR'].includes(error.code) || parent === candidate) return resolve(path);
+      // Planned worktrees may not exist yet, but their parent can still have a
+      // Windows short-name or junction alias. Do not cache filesystem identity.
+      suffix.unshift(basename(candidate));
+      candidate = parent;
+    }
+  }
+}
+
+export const pathKey = (path: string) => {
+  const canonical = canonicalPath(path);
+  return process.platform === 'win32' ? canonical.toLowerCase() : canonical;
+};
 let running = 0;
 const waiting: (() => void)[] = [];
 
@@ -36,7 +56,7 @@ export async function git(cwd: string, args: string[], timeout = 20000): Promise
       [
         '--no-optional-locks',
         '-c',
-        `safe.directory=${resolve(cwd).replace(/\\/g, '/')}`,
+        `safe.directory=${canonicalPath(cwd).replace(/\\/g, '/')}`,
         '-c',
         'core.quotepath=false',
         '-c',

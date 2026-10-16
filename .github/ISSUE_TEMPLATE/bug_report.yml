@@ -5,7 +5,7 @@ body:
     id: version
     attributes:
       label: Version & Windows version / 软件与 Windows 版本
-      placeholder: Tandem 0.3.1, Windows 11 x64
+      placeholder: Tandem 0.3.2, Windows 11 x64
     validations:
       required: true
   - type: textarea

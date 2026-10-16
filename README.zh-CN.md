@@ -4,7 +4,7 @@
 
 Windows x64 · 简体中文 / English · 无需注册账号
 
-**0.3.1** 完善任务搜索，并修复差异查看器漏行问题。[更新记录](docs/RELEASE-0.3.1.md) · [数据可靠性](docs/RELIABILITY-0.3.md)。升级前请先退出旧版本。
+**0.3.2** 修复 Windows 路径别名下的恢复问题，完善任务搜索与差异显示。[更新记录](docs/RELEASE-0.3.2.md) · [数据可靠性](docs/RELIABILITY-0.3.md)。升级前请先退出旧版本。
 
 [English](README.md) · [界面调整](docs/PRODUCT.md) · [实现结构](docs/ARCHITECTURE.md) · [验证记录](docs/VALIDATION.md)
 
@@ -12,7 +12,7 @@ Windows x64 · 简体中文 / English · 无需注册账号
 
 ## 安装和运行
 
-从 [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.1) 下载 [Windows x64 安装包](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.1/Tandem-Setup-0.3.1-x64.exe)，按安装向导选择目录。同页提供校验文件与构建信息。安装后连接仓库即可创建任务；也可以先打开示例工作台熟悉流程。
+从 [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.2) 下载 [Windows x64 安装包](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.2/Tandem-Setup-0.3.2-x64.exe)，按安装向导选择目录。同页提供校验文件与构建信息。安装后连接仓库即可创建任务；也可以先打开示例工作台熟悉流程。
 
 程序内置 Electron 运行时，使用时**不需要安装 Node.js 或 Python**。本机需要安装 Git，并能通过 PATH 找到；可以在「设置」查看检测结果。安装包目前未签名。
 

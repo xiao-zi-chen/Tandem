@@ -1,11 +1,11 @@
-# 0.3.1 Validation / 验证记录
+# 0.3.2 Validation / 验证记录
 
 日期：2026-10-16。环境：Windows x64、Git 2.47.0.windows.2、Node.js 24.19.0、Electron 44.8.0。
 
 | 项目                          | 结果           |
 | ----------------------------- | -------------- |
 | TypeScript 严格检查与生产构建 | 通过           |
-| Git / 业务核心测试            | 18 项通过      |
+| Git / 业务核心测试            | 19 项通过      |
 | 恢复 / 文件写入 / 启停测试    | 10 项通过      |
 | 差异解析 / 任务检索回归测试   | 4 项通过       |
 | 浏览器完整流程                | 12 项通过      |
@@ -14,15 +14,17 @@
 | 生产 npm 依赖审计             | 0 个已报告漏洞 |
 | 代码签名状态                  | NotSigned      |
 
-0.3.1 新增回归覆盖差异内容被误当文件头隐藏、源码行号、无末尾换行、重命名旧路径搜索，以及跨任务名、仓库、分支和 PR 的组合搜索。浏览器验证在真实临时 Git 仓库中提交并重命名文件，确认以 `-- ` 和 `++ ` 开头的源码行仍完整可见。
+0.3.2 新增回归覆盖差异内容被误当文件头隐藏、源码行号、无末尾换行、重命名旧路径搜索，以及跨任务名、仓库、分支和 PR 的组合搜索。浏览器验证在真实临时 Git 仓库中提交并重命名文件，确认以 `-- ` 和 `++ ` 开头的源码行仍完整可见。
 
-All 32 code/reliability tests, 12 browser workflows and 8 packaged-desktop verification groups passed locally on Windows x64. TypeScript, production build, formatting and the production dependency audit passed. Browser tests exercise a real Git rename and verify source lines that resemble diff headers. The audit reported no known production dependency vulnerabilities at the time of this check.
+All 33 code/reliability tests, 12 browser workflows and 8 packaged-desktop verification groups passed locally on Windows x64. TypeScript, production build, formatting and the production dependency audit passed. Browser tests exercise a real Git rename and verify source lines that resemble diff headers. The audit reported no known production dependency vulnerabilities at the time of this check.
+
+GitHub 的全新 Windows 环境曾发现短路径与完整路径身份不一致，导致恢复操作保守跳过空 worktree。0.3.2 通过实际文件系统解析目录身份，也覆盖目录联接和未创建的子目录；新增测试验证回滚只清理无改动工作区并保留忽略文件。
 
 此前 0.3 的数据可靠性修复继续通过回归，详细处理见[可靠性记录](RELIABILITY-0.3.md)。
 
 ## 桌面程序
 
-验证执行 `release/0.3.1/win-unpacked/Tandem.exe`，确认 `app.isPackaged === true`，覆盖：
+验证执行 `release/0.3.2/win-unpacked/Tandem.exe`，确认 `app.isPackaged === true`，覆盖：
 
 1. 独立程序启动、稳定应用来源、独立用户数据目录，以及实际开启的沙箱和上下文隔离。
 2. 两仓库示例 worktree 与真实 Git 状态读取。
@@ -51,6 +53,6 @@ Native tests run the actual packaged executable. OS folder/save-dialog results a
 - [交接预览](screenshots-v3/desktop-handoff-en.png)
 - [桌面设置](screenshots-v3/desktop-settings-en.png)
 
-本地安装包位于 `release/0.3.1/`；使用 `npm run release:manifest` 生成 SHA-256 校验文件及 `release-info.json`。下载入口为 [GitHub Release v0.3.1](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.1)。截图来自实际打包程序；设置截图中的本机数据路径已遮盖。
+本地安装包位于 `release/0.3.2/`；使用 `npm run release:manifest` 生成 SHA-256 校验文件及 `release-info.json`。下载入口为 [GitHub Release v0.3.2](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.2)。截图来自实际打包程序；设置截图中的本机数据路径已遮盖。
 
 仓库包含 Windows CI 与手动发布工作流；实际远端执行状态以 [Actions](https://github.com/xiao-zi-chen/Tandem/actions) 为准。本地结果不等同于远端 CI 结果。尚未开展外部团队的长期试用；没有自动发送推广消息。

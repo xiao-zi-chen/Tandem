@@ -4,7 +4,7 @@ A local desktop workspace for tasks spanning independent Git repositories. Keep 
 
 Windows x64 · English / 简体中文 · No account required
 
-Version **0.3.1** adds better task search and fixes missing lines in the diff viewer. [Release notes](docs/RELEASE-0.3.1.md) · [Data reliability](docs/RELIABILITY-0.3.md). Close older versions before upgrading.
+Version **0.3.2** fixes Windows path aliases during recovery, improves task search and preserves all source lines in the diff viewer. [Release notes](docs/RELEASE-0.3.2.md) · [Data reliability](docs/RELIABILITY-0.3.md). Close older versions before upgrading.
 
 [简体中文](README.zh-CN.md) · [Design notes](docs/PRODUCT.md) · [Architecture](docs/ARCHITECTURE.md) · [Validation](docs/VALIDATION.md)
 
@@ -12,7 +12,7 @@ Version **0.3.1** adds better task search and fixes missing lines in the diff vi
 
 ## Install
 
-Download the [Windows x64 installer](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.1/Tandem-Setup-0.3.1-x64.exe) from [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.1). Checksums and build information are available beside it. Install, connect your repositories and create your first task; the optional sample workspace is a quick way to try the workflow.
+Download the [Windows x64 installer](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.2/Tandem-Setup-0.3.2-x64.exe) from [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.2). Checksums and build information are available beside it. Install, connect your repositories and create your first task; the optional sample workspace is a quick way to try the workflow.
 
 The desktop application includes its Electron runtime. **Users do not need Node.js or Python.** Git must be installed and available on PATH; Settings shows the detected Git version. The installer is currently unsigned.
 

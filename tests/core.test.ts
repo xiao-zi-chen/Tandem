@@ -2,7 +2,7 @@ import test, { type TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { mkdir, mkdtemp, writeFile, readFile, rm, unlink } from 'node:fs/promises';
+import { mkdir, mkdtemp, writeFile, readFile, rm, unlink, symlink } from 'node:fs/promises';
 import { join, resolve, relative, isAbsolute, sep } from 'node:path';
 import { Store } from '../server/store.js';
 import { WorkspaceService } from '../server/service.js';
@@ -107,6 +107,32 @@ test('creates independent worktrees from distinct bases and preserves dirty sour
   const resumed = new WorkspaceService(new Store(service.store.directory));
   await resumed.init();
   assert.equal(resumed.task(task.id).bindings[1].worktreePath, task.bindings[1].worktreePath);
+});
+
+test('directory aliases share an identity and recovery preserves changed work through an alias', async (t) => {
+  const { root, paths, service, input } = await fixture(t);
+  const alias = join(root, 'workspace alias');
+  await symlink(service.store.directory, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.equal(pathKey(alias), pathKey(service.store.directory));
+  assert.equal(
+    pathKey(join(alias, 'future', 'task')),
+    pathKey(join(service.store.directory, 'future', 'task')),
+  );
+  const aliased = new WorkspaceService(new Store(alias));
+  await aliased.init();
+  const task = await aliased.createTask(input());
+  await writeFile(join(task.bindings[0].worktreePath, '.env'), 'keep ignored work');
+  await aliased.store.transaction((state) => {
+    state.tasks = [];
+    state.operations.find((operation) => operation.id === task.operationId)!.state = 'failed';
+  });
+  await aliased.recoverOperation(task.operationId);
+  assert.equal((await worktrees(paths[0])).length, 2);
+  assert.equal((await worktrees(paths[1])).length, 1);
+  assert.equal(
+    await readFile(join(task.bindings[0].worktreePath, '.env'), 'utf8'),
+    'keep ignored work',
+  );
 });
 
 test('a second-repository failure compensates the first and preserves an unrelated destination', async (t) => {
