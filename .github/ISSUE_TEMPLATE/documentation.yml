@@ -1,0 +1,23 @@
+﻿name: Documentation or translation / 文档或翻译
+description: Improve instructions, wording, or language coverage / 改进使用说明、文案或语言覆盖
+labels: [documentation]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Page or screen / 文档页面或软件界面
+      placeholder: README.zh-CN.md, quick start, Settings…
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear or incorrect? / 哪部分不清楚或不准确？
+      description: Quote the wording and describe what you expected to understand. / 请引用相关文案，并描述你希望了解的内容。
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested wording / 建议的表述
+      description: Optional; English or Chinese is welcome. / 可选，欢迎中文或英文建议。

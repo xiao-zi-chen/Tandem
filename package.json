@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "private": true,
   "type": "module",
-  "description": "A local workspace for work that spans repositories.",
+  "description": "A local desktop workspace for tasks across Git repositories: worktrees, diffs, linked PRs, and handoffs.",
   "engines": {
     "node": ">=22"
   },
@@ -21,7 +21,8 @@
     "desktop:dist": "npm run build && electron-builder --win nsis --x64",
     "test:desktop": "node --import tsx tests/desktop/smoke.ts",
     "format:check": "prettier --check src server desktop shared tests scripts public docs .github package.json tsconfig.json vite.config.ts playwright.config.ts index.html README.md README.zh-CN.md CONTRIBUTING.md",
-    "release:manifest": "node scripts/release-manifest.mjs"
+    "release:manifest": "node scripts/release-manifest.mjs",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "dependencies": {
     "express": "^5.3.0",

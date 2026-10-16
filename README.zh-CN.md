@@ -1,105 +1,96 @@
-# 同序 / Tandem
+﻿<p align="center">
+  <img src="public/favicon.svg" width="64" height="64" alt="同序标志">
+</p>
 
-本地多仓库任务工作台。把一个任务涉及的分支、差异、PR 和交接说明放在一起，同时保留每个仓库独立的 Git 历史。
+<h1 align="center">Tandem · 同序</h1>
 
-Windows x64 · 简体中文 / English · 无需注册账号
+<p align="center">
+  <strong>一个任务，多个仓库。</strong><br>
+  把分支、变更和 PR 放在一起，<br>
+  每个仓库依然保留自己的 Git 历史。
+</p>
 
-**0.4.0** 升级多仓库变更审阅，提供并排差异、长行换行、专注阅读和工作目录快捷操作。[更新记录](docs/RELEASE-0.4.0.md) · [数据可靠性](docs/RELIABILITY-0.3.md)。升级前请先退出旧版本。
+<p align="center">
+  <a href="https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0">下载 Windows 版</a> ·
+  <a href="docs/QUICKSTART.zh-CN.md">快速上手</a> ·
+  <a href="https://github.com/xiao-zi-chen/Tandem/issues/new/choose">反馈建议</a> ·
+  <a href="README.md">English</a>
+</p>
 
-[English](README.md) · [界面调整](docs/PRODUCT.md) · [实现结构](docs/ARCHITECTURE.md) · [验证记录](docs/VALIDATION.md)
+<p align="center">
+  <a href="https://github.com/xiao-zi-chen/Tandem/actions/workflows/ci.yml"><img src="https://github.com/xiao-zi-chen/Tandem/actions/workflows/ci.yml/badge.svg?branch=main" alt="Windows 检查"></a>
+  <a href="https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0"><img src="https://img.shields.io/badge/Windows_preview-v0.4.0-465b74?style=flat" alt="Windows 预览版 v0.4.0"></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/languages-English_%2F_简体中文-5e6b62?style=flat" alt="英文与简体中文"></a>
+</p>
 
-![桌面工作台](docs/screenshots-v4/desktop-review-zh.png)
+![同序将前端和 API 仓库的变更汇总到同一文件列表，并排显示代码差异](docs/screenshots-v4/desktop-review-zh.png)
 
-## 安装和运行
+<p align="center"><sub>Windows 成品实拍 · 内置示例仓库 · 完整中英文界面</sub></p>
 
-从 [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0) 下载 [Windows x64 安装包](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe)，按安装向导选择目录。同页提供校验文件与构建信息。安装后连接仓库即可创建任务；也可以先打开示例工作台熟悉流程。
+## 围绕一个任务，把工作放在一起
 
-程序内置 Electron 运行时，使用时**不需要安装 Node.js 或 Python**。本机需要安装 Git，并能通过 PATH 找到；可以在「设置」查看检测结果。安装包目前未签名。
+改一个接口，往往也要改前端。工作属于同一个任务，代码却在不同仓库。同序是一款本地桌面工具，把这个任务涉及的 worktree、代码差异、PR 链接和备注集中起来。
 
-安装包包含应用图标、产品版本、快捷方式和卸载程序。不会要求用户手工启动浏览器服务。已有的 `启动同序.cmd` 会优先启动桌面程序，只有不存在桌面构建时才使用网页开发预览。
+继续使用熟悉的编辑器和 Git 工具编写、提交与推送代码；用同序准备任务工作区、集中审阅变更，再把上下文交接清楚。
 
-## 使用流程
+| 当你需要……               | 同序可以帮你……                                                            |
+| ------------------------ | ------------------------------------------------------------------------- |
+| 开始一个跨仓库功能       | 为各仓库创建 worktree，选择新分支或未被占用的已有分支，复用常用仓库组合。 |
+| 把正在进行的工作归到一起 | 接入已有工作目录，连同尚未提交的改动一起组织。                            |
+| 看清整个任务改了什么     | 按仓库分组浏览文件、搜索路径，切换统一或并排差异。                        |
+| 继续上次的工作           | 用 **Ctrl+K** 查找任务，保存备注与检查项，在 VS Code 中打开工作区。       |
+| 把工作交给其他人         | 关联 GitHub PR，导出包含仓库、分支与备注的 Markdown 交接摘要。            |
 
-1. 点击「连接仓库」，通过系统文件夹选择器选择已有 Git 仓库，也可以直接填写路径。
-2. 创建任务，选择涉及的仓库。可以分别创建 worktree，也可以接入已经使用的工作目录。
+<details>
+<summary>查看任务概览与交接界面</summary>
 
-   在「创建新工作区」中勾选「使用已有分支」，可选择未被其他 worktree 占用的本地分支；回滚不会删除这个原有分支。
+**任务概览**：集中查看分支、仓库状态、关联 PR 与备注。
 
-3. 在同一文件列表中查看全部仓库，按仓库名或新旧路径筛选，并切换统一或并排差异。工作区、暂存区、新文件和分支累计变更仍分开呈现。
-4. 关联各仓库的 GitHub PR，填写检查清单与任务备注。
-5. 使用系统保存对话框导出 Markdown 交接单，或通过原生剪贴板复制；同事无需安装同序也能阅读。
-6. 归档只整理任务列表，保留原有工作目录、分支与修改。
+![桌面成品中的中文任务概览](docs/screenshots-v4/desktop-workspace-zh.png)
 
-按 **Ctrl+K** 搜索任务名、仓库、分支或关联 PR；可组合输入 `web #123`，用方向键与回车打开结果。常用仓库组合可以保存，下一次从组合直接创建任务。
+**交接摘要**：复制或保存前，先预览 Markdown 内容。下图为英文界面。
 
-首次也可以打开示例工作台。示例包含两个真实的本地 Git 仓库与三个任务，显示的差异来自 Git；示例代码不是已经配置好运行环境的前后端应用。
+![桌面成品中的 Markdown 交接预览，英文界面](docs/screenshots-v4/desktop-handoff-en.png)
 
-使用「专注查看变更」扩大审阅区域，「长行自动换行」让代码适应列宽；重启后保留阅读偏好。大差异分批显示 500 行，并提供明确的「继续显示更多行」操作。目录与复制图标作用于当前仓库的工作目录。
+</details>
 
-## 桌面功能
+## 下载并试用
 
-- 原生窗口、文件/编辑/查看/语言/帮助菜单与编辑右键菜单。
-- `Ctrl/⌘ K` 搜索，原生菜单快捷键新建任务和连接仓库。
-- 原生文件夹选择、保存对话框和剪贴板。
-- 关闭重开后保留语言、所选任务、窗口大小和位置。
-- 单实例启动；再次打开会显示已有窗口。
-- 设置中查看版本、Git 状态和数据目录，也可打开其他工作台。
-- GitHub 链接交由系统浏览器打开，应用窗口只加载本地界面。
+**[下载同序 0.4.0 · Windows x64](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe)** · [版本说明与校验文件](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0)
 
-## 数据和旧版工作台
+需要 **Windows x64，以及已加入 PATH 的 Git**。使用安装包无需 Node.js 或 Python，也无需注册同序账号。
 
-默认数据位于当前用户的 Windows 应用数据目录。请在「设置 → 数据目录」查看实际路径。
+> **Windows 预览版：**安装包尚未签名，暂不提供自动更新和 macOS/Linux 安装包。升级前请退出旧版本。实际验证范围见[验证记录](docs/VALIDATION.md)。
 
-```text
-data/
-  state.json          当前任务、仓库与操作记录
-  state.backup.json   上一次有效元数据快照
-  workspaces/         创建的 worktree 与编辑器工作区文件
-  sample-project/     可选的示例仓库
-```
+1. 安装并打开同序，在「设置」中确认 Git 可用。
+2. 选择「打开示例工作台」，体验两个真实的本地示例仓库；也可以「连接仓库」，选择自己的项目。
+3. 新建任务并选择仓库，进入「变更」，集中审阅各仓库的改动。
 
-备注草稿保存在本机；切换任务不会直接丢弃草稿。保存时会检查任务版本，发现其他窗口的更新后保留输入并提示冲突。元数据文件会经过结构校验，再以临时文件同步写入并原子替换；损坏文件不会被自动清空。
+示例使用真实 Git 变更，无需先连接自己的仓库。分支选择、PR 关联、快捷键和常见问题见**[快速上手](docs/QUICKSTART.zh-CN.md)**。
 
-主文件缺失或损坏时，桌面版会先检查备份，再提供「恢复备份并重启」。恢复前会保留损坏原件。0.3 首次修改旧工作台时升级到数据格式 2，并另外保留原始 `state.v1.backup.json`；升级后的目录请继续使用 0.3 或更新版本。
+## 接入你已有的 Git 工作方式
 
-旧网页版的 `.tandem/` 已保留。关闭使用该目录的旧服务后，可以在桌面版「设置 → 打开其他工作台」选择它。此操作不移动原仓库或 worktree。非空的普通项目目录不会被当成新的同序数据目录使用。
+- **保留独立仓库。** 每个仓库保留自己的提交、分支和远端；任务负责关联它们的工作目录。
+- **任务数据保存在本机。** 仓库、备注和工作台元数据都在本地；刷新 GitHub PR 状态时会发起网络请求，有可用的 GitHub CLI 登录时优先使用。
+- **明确的任务生命周期。** 归档任务会保留分支和 worktree；需要清理时，使用原有 Git 工具处理。
+- **保护编辑中的工作。** 备注草稿、版本冲突检查、原子元数据写入和上一份元数据快照共同减少意外丢失。快照不备份源文件。[数据与恢复 →](docs/DATA.zh-CN.md)
 
-`state.backup.json` 只备份任务元数据，**不是源码或未提交文件的完整备份**。不要删除数据目录来重置界面。linked worktree 依赖原仓库的 Git 目录，备份时需要一起考虑。
+创建 worktree 不会安装项目依赖，也不会隔离端口或数据库。同序关联已有 GitHub PR；推送、创建 PR 与合并仍在原有工具中完成。无法核实的 PR 状态会显示「未确认」。
 
-## 当前边界
+## 文档
 
-目前验证的平台为 Windows x64。尚未提供签名版本、自动更新服务或 macOS/Linux 安装包。安装向导没有在本机实际执行，自动化验证使用安装包对应的实际打包程序。具体覆盖范围见[验证记录](docs/VALIDATION.md)。
+| 指南                                                                 | 内容                                    |
+| -------------------------------------------------------------------- | --------------------------------------- |
+| [快速上手](docs/QUICKSTART.zh-CN.md) · [English](docs/QUICKSTART.md) | 第一个任务、变更审阅、PR 关联与常见问题 |
+| [数据与恢复](docs/DATA.zh-CN.md) · [English](docs/DATA.md)           | 数据位置、备份、升级与切换工作台        |
+| [开发指南](CONTRIBUTING.md)                                          | 本地开发、目录结构、验证与发布          |
+| [技术架构](docs/ARCHITECTURE.md)                                     | 桌面隔离、Git 操作与持久化机制          |
+| [验证记录](docs/VALIDATION.md) · [版本说明](docs/RELEASE-0.4.0.md)   | 已验证行为、测试覆盖与当前边界          |
 
-PR 关联目前支持 GitHub。刷新时优先使用现有 `gh` 登录，公开请求在桌面版走 Electron 网络栈；无法核实的状态仍显示「未确认」。没有自动推送、合并、运行项目脚本或推断 CI/部署完成。
+## 一起把同序做得更好
 
-创建 worktree 不会自动安装项目依赖、配置端口或隔离数据库。通用 worktree 清理由用户原有 Git 工具处理；失败恢复仅移除该操作创建且仍无新工作的资源。
+试着用同序完成一个涉及两个仓库的真实任务。告诉我们哪一步省了时间、哪里还需要来回切换工具，以及交接摘要是否有用。欢迎用**中文或英文**[分享工作流程](https://github.com/xiao-zi-chen/Tandem/issues/new?template=feature_request.yml)或[反馈问题](https://github.com/xiao-zi-chen/Tandem/issues/new?template=bug_report.yml)。
 
-## 开发与验证
+欢迎改进文档、翻译和具体问题；准备提交修改前，请先阅读[开发指南](CONTRIBUTING.md)。
 
-开发使用 Node.js 24 LTS、Git。源码使用 React、TypeScript、Electron，Git 服务直接运行在桌面主进程中。
-
-```sh
-npm ci
-node node_modules/electron/install.js
-npm run desktop:dev
-```
-
-```sh
-npm test
-npm run build
-npx playwright install chromium
-npm run test:e2e
-npm run desktop:dist
-npm run test:desktop
-npm run release:manifest
-```
-
-如果开发机使用 HTTP(S) 代理，下载 Electron 时可在 Node.js 24 下设置 `NODE_USE_ENV_PROXY=1`。这不影响安装包用户，运行时已随应用提供。
-
-`npm run dev` 仍可运行浏览器开发预览。测试使用临时目录和独立仓库，不操作用户登记的仓库。GitHub Actions 对源码变更执行 Windows 检查；手动发布工作流从版本标签构建并准备草稿发布。
-
-## 反馈与项目状态
-
-可以用中文或英文[反馈问题、描述使用流程](https://github.com/xiao-zi-chen/Tandem/issues/new/choose)。请附上设置中的同序版本、Git 版本和复现步骤。[开发与发布指南](CONTRIBUTING.md)。
-
-当前是用于真实任务验证的早期版本。项目许可暂为 **UNLICENSED**，所有者尚未选定开源许可证；第三方依赖保留各自的许可。
+**项目状态：**用于真实任务验证的早期 Windows 预览版。项目当前为 **UNLICENSED**，所有者尚未选定开源许可证；第三方依赖保留各自的许可。

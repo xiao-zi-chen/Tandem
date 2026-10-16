@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing version tag, for example v0.3.2
+        description: Existing version tag, for example v0.4.0
         required: true
         type: string
 
@@ -41,6 +41,7 @@ jobs:
       - run: npm ci
       - run: node node_modules/electron/install.js
       - run: npm run format:check
+      - run: npm run docs:check --if-present
       - run: npm test
       - run: npm run build
       - run: npx playwright install chromium

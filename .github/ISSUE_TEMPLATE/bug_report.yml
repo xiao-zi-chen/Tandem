@@ -1,26 +1,79 @@
-name: Bug report / 问题反馈
-description: Report a reproducible problem / 反馈可复现的问题
+﻿name: Bug report / 问题反馈
+description: Something is broken or behaving unexpectedly / 反馈故障或不符合预期的行为
+labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        English or Chinese is welcome. Include enough detail to reproduce the problem.
+        支持中文和英文，请提供能帮助复现问题的信息。
+
+        Remove credentials, private repository URLs, personal paths, and source code from logs or screenshots.
+        日志和截图中请移除凭据、私有仓库链接、私人路径与源码。
   - type: input
     id: version
     attributes:
-      label: Version & Windows version / 软件与 Windows 版本
-      placeholder: Tandem 0.3.2, Windows 11 x64
+      label: Tandem version / 同序版本
+      description: Shown in Settings / 可在设置中查看
+      placeholder: 0.4.0
     validations:
       required: true
-  - type: textarea
-    id: reproduce
+  - type: input
+    id: environment
     attributes:
-      label: Steps, expected result, actual result / 步骤、预期与实际结果
-      description: Include Git version from Settings. Remove private paths, source code and credentials. / 请附设置中的 Git 版本；移除私人路径、源码和凭据。
+      label: Windows and Git versions / Windows 与 Git 版本
+      description: Git version is shown in Settings / Git 版本可在设置中查看
+      placeholder: Windows 11 x64; Git 2.x
     validations:
       required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area / 出问题的位置
+      options:
+        - Installation or startup / 安装或启动
+        - Repositories and worktrees / 仓库与工作目录
+        - File list or diffs / 文件列表或差异
+        - Notes, checklist, or handoff / 备注、检查项或交接
+        - GitHub PR links or status / GitHub PR 关联或状态
+        - Data, recovery, or workspace switching / 数据、恢复或切换工作台
+        - Language or layout / 语言或布局
+        - Other / 其他
   - type: dropdown
     id: mode
     attributes:
       label: Task workspace / 任务工作区
       options:
-        - New worktree / 新建工作区
-        - Existing branch / 已有分支
+        - New branch and worktree / 新分支与 worktree
+        - Existing branch with a new worktree / 已有分支的新 worktree
         - Attached checkout / 接入已有目录
-        - Other / 其他
+        - Built-in sample / 内置示例
+        - Not applicable or unsure / 不适用或不确定
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      placeholder: |
+        1. Open… / 打开……
+        2. Select… / 选择……
+        3. Observe… / 出现……
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 实际结果
+      description: Include any visible error code and whether it happens every time. / 如有错误码请附上，并说明是否每次都出现。
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Screenshots or extra context / 截图或补充信息
+      description: Optional. Please review attachments for private information. / 可选，请先检查附件中的私人信息。

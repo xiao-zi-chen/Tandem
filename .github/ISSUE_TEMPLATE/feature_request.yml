@@ -1,15 +1,36 @@
-name: Workflow suggestion / 使用建议
+﻿name: Workflow suggestion / 使用建议
 description: Describe a real task Tandem could make easier / 描述希望改善的真实任务
+labels: [enhancement]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us about the work you are trying to finish. English and Chinese are both welcome.
+        请从你正在完成的工作说起，中文或英文都可以。
   - type: textarea
     id: workflow
     attributes:
-      label: Current workflow and friction / 当前流程与不便
-      description: What repositories, tools and repeated steps are involved? / 涉及哪些仓库、工具和重复步骤？
+      label: The task and repositories involved / 任务与涉及的仓库
+      description: Use generic names instead of private repository URLs. / 请使用通用名称，无需提供私有仓库链接。
+      placeholder: A frontend and an API both need changes for… / 前端和 API 都需要修改，以完成……
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where the current workflow gets in the way / 当前流程中的不便
+      description: Which tools do you switch between? Which steps repeat, or cost time? / 需要切换哪些工具？哪些步骤重复或耗时？
     validations:
       required: true
   - type: textarea
     id: result
     attributes:
-      label: Desired outcome / 希望达到的效果
-      description: What would a successful task look like? / 如何判断这项改进有用？
+      label: What would improve the outcome? / 希望改善什么？
+      description: Describe how you would know the change was useful. / 说明如何判断这项改进有用。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Current workaround or idea / 现有办法或建议
+      description: Optional. A script, another tool, a sketch, or a description is enough. / 可选，可以是脚本、其他工具、草图或文字描述。

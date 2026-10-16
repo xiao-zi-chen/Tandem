@@ -1,101 +1,96 @@
-# Tandem / 同序
+﻿<p align="center">
+  <img src="public/favicon.svg" width="64" height="64" alt="Tandem logo">
+</p>
 
-A local desktop workspace for tasks spanning independent Git repositories. Keep the branches, changes, PRs and handoff for one task together, while each repository keeps its own Git history.
+<h1 align="center">Tandem</h1>
 
-Windows x64 · English / 简体中文 · No account required
+<p align="center">
+  <strong>One task. Multiple repositories.</strong><br>
+  Keep your branches, changes, and pull requests together.<br>
+  Each repository keeps its own Git history.
+</p>
 
-Version **0.4.0** brings cross-repository review, side-by-side diffs, line wrapping and a focused reading workspace. [Release notes](docs/RELEASE-0.4.0.md) · [Data reliability](docs/RELIABILITY-0.3.md). Close older versions before upgrading.
+<p align="center">
+  <a href="https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0">Download for Windows</a> ·
+  <a href="docs/QUICKSTART.md">Quick start</a> ·
+  <a href="https://github.com/xiao-zi-chen/Tandem/issues/new/choose">Feedback</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-[简体中文](README.zh-CN.md) · [Design notes](docs/PRODUCT.md) · [Architecture](docs/ARCHITECTURE.md) · [Validation](docs/VALIDATION.md)
+<p align="center">
+  <a href="https://github.com/xiao-zi-chen/Tandem/actions/workflows/ci.yml"><img src="https://github.com/xiao-zi-chen/Tandem/actions/workflows/ci.yml/badge.svg?branch=main" alt="Windows checks"></a>
+  <a href="https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0"><img src="https://img.shields.io/badge/Windows_preview-v0.4.0-465b74?style=flat" alt="Windows preview v0.4.0"></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/languages-English_%2F_简体中文-5e6b62?style=flat" alt="English and Simplified Chinese"></a>
+</p>
 
-![Desktop workspace](docs/screenshots-v4/desktop-review-en.png)
+![Tandem reviewing changes from a frontend and an API repository in one file list, with a side-by-side diff](docs/screenshots-v4/desktop-review-en.png)
 
-## Install
+<p align="center"><sub>Actual Windows app · Built-in sample repositories · English and Simplified Chinese</sub></p>
 
-Download the [Windows x64 installer](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe) from [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0). Checksums and build information are available beside it. Install, connect your repositories and create your first task; the optional sample workspace is a quick way to try the workflow.
+## A workspace for the whole task
 
-The desktop application includes its Electron runtime. **Users do not need Node.js or Python.** Git must be installed and available on PATH; Settings shows the detected Git version. The installer is currently unsigned.
+An API change often needs a frontend change too. The work belongs together, even when the repositories don't. Tandem is a local desktop app that groups the worktrees, diffs, linked PRs, and notes for that task in one place.
 
-The installer includes the application icon, version metadata, shortcuts, and an uninstaller. Users do not need to start a web server. The existing `启动同序.cmd` launcher prefers the desktop build and falls back to the browser development preview only when a desktop build is unavailable.
+Use your usual editor and Git tools to write, commit, and push. Use Tandem to prepare the task, review changes across repositories, and leave a clear handoff.
 
-## Workflow
+| When you need to…                           | Tandem helps you…                                                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Start a feature across several repositories | Create a worktree for each repository, choose a new or existing unoccupied branch, and reuse saved repository sets. |
+| Bring ongoing work together                 | Attach existing checkouts, including their uncommitted changes.                                                     |
+| Review the whole change                     | Browse files grouped by repository, search paths, and switch between unified and side-by-side diffs.                |
+| Pick up where you left off                  | Find a task with **Ctrl+K**, keep notes and checklists, and open its workspace in VS Code.                          |
+| Hand work to someone else                   | Collect GitHub PR links and export a Markdown summary with the task's repositories, branches, and notes.            |
 
-1. Connect existing local Git repositories using the native folder picker or a path.
-2. Create a task with one worktree per repository, or attach existing checkouts and their local changes.
+<details>
+<summary>See the task overview and handoff</summary>
 
-   Select **Use an existing branch** to use an unoccupied local branch. Failure recovery preserves that branch and its original commits.
+**Task overview** — branches, repository status, linked PRs, and notes.
 
-3. Review all repositories in one grouped file list. Filter repository names or old/new paths, then read unified or side-by-side diffs. Working, staged, untracked and committed changes remain distinct.
-4. Link GitHub PRs, maintain a checklist and save task notes.
-5. Export a Markdown handoff through a native save dialog or copy it to the system clipboard.
-6. Archive completed tasks without deleting branches or worktrees.
+![Task overview in the packaged desktop app](docs/screenshots-v4/desktop-workspace-en.png)
 
-Press **Ctrl+K** to find a task by name, repository, branch or linked PR. Combine terms such as `web #123`; use the arrow keys and Enter to open a result. You can save frequently used repository combinations and start another task from them.
+**Handoff** — preview the Markdown before copying or saving it.
 
-The optional sample workspace creates two actual local Git repositories and three tasks. Its displayed changes come from Git; it is a workflow example, not a runnable full-stack application.
+![Markdown handoff preview in the packaged desktop app](docs/screenshots-v4/desktop-handoff-en.png)
 
-Use **Focus on changes** to widen the review area, and **Wrap long lines** to fit code to each column. Reading preferences survive a restart. Large diffs show 500 rows at a time with an explicit **Show more lines** action. The folder and copy icons act on the selected repository’s working directory.
+</details>
 
-## Desktop integration
+## Download and try it
 
-Tandem provides a native window, application menus, editing context menus, folder/save dialogs, clipboard integration, keyboard shortcuts, and single-instance activation. Window bounds, language and the selected task survive a restart. External GitHub links open in the system browser.
+**[Download Tandem 0.4.0 for Windows x64](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe)** · [Release notes and checksums](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0)
 
-Settings shows the version, Git availability and data directory. An existing Tandem workspace or an empty folder can be selected as another data directory. Nonempty ordinary project folders are rejected.
+You need **Windows x64 and Git on PATH**. Node.js and Python are not required to use the installer. No Tandem account is required.
 
-## Data
+> **Windows preview:** the installer is unsigned. Automatic updates and macOS/Linux installers are not available. Close older versions before upgrading. See [what has been tested](docs/VALIDATION.md).
 
-Desktop data defaults to the current user's application-data location. Use **Settings → Data directory** to inspect the actual path.
+1. Install and open Tandem. Settings shows whether Git is available.
+2. Choose **Open sample workspace** to explore two real local sample repositories, or **Connect repository** to select your own.
+3. Create a task, select its repositories, then open **Changes** to review them together.
 
-```text
-data/
-  state.json          repositories, tasks and operation journal
-  state.backup.json   previous valid metadata snapshot
-  workspaces/         real task worktrees and editor workspace files
-  sample-project/     optional sample repositories
-```
+The sample uses actual Git changes and can be explored without connecting your own repositories. For branch choices, PR links, shortcuts, and troubleshooting, see the **[quick start](docs/QUICKSTART.md)**.
 
-Local note drafts survive task navigation. Saving checks the task revision to prevent silently overwriting an edit from another window. Metadata is validated, synced to a temporary file and atomically replaced; invalid state is preserved rather than reset.
+## Fits your existing Git workflow
 
-When primary data is missing or invalid, the desktop application validates the backup before offering **Restore backup and restart**. The damaged original is preserved. On the first mutation, older workspaces migrate to data format 2 with an original `state.v1.backup.json` retained. Continue using version 0.3 or newer for migrated workspaces.
+- **Independent repositories.** Each retains its own commits, branches, and remotes. A task groups their working directories.
+- **Local task data.** Repositories, notes, and workspace metadata live on your computer. GitHub PR status refresh makes network requests; it uses an existing GitHub CLI login when available.
+- **Explicit lifecycle.** Archiving a task keeps its branches and worktrees. Remove worktrees through your usual Git tools when you are ready.
+- **Protected edits.** Note drafts, revision checks, atomic metadata writes, and a previous metadata snapshot help preserve your work. The snapshot does not back up source files. [Data and recovery →](docs/DATA.md)
 
-The older browser preview's `.tandem/` directory is retained. Close any service using it, then select it from **Settings → Open another workspace**. No repository or worktree is moved.
+Worktree creation does not install project dependencies or isolate ports and databases. Tandem links existing GitHub PRs; pushing, opening PRs, and merging stay in your existing tools. Unavailable PR status is shown as **Unverified**.
 
-The metadata backup is **not a source-code or working-file backup**. Do not delete the data directory to reset the UI. Linked worktrees depend on their original repository's Git directory.
+## Documentation
 
-## Release boundaries
+| Guide                                                                     | What you will find                                         |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [Quick start](docs/QUICKSTART.md) · [中文](docs/QUICKSTART.zh-CN.md)      | First task, review workflow, PR links, and common problems |
+| [Data and recovery](docs/DATA.md) · [中文](docs/DATA.zh-CN.md)            | Storage, backups, upgrading, and switching workspaces      |
+| [Development guide](CONTRIBUTING.md)                                      | Local setup, project structure, checks, and releases       |
+| [Architecture](docs/ARCHITECTURE.md)                                      | Desktop boundaries, Git operations, and persistence        |
+| [Validation](docs/VALIDATION.md) · [Release notes](docs/RELEASE-0.4.0.md) | Verified behavior, test coverage, and current limits       |
 
-Windows x64 is the verified desktop target. Code signing, automatic updates and macOS/Linux installers are not provided. The installer wizard has not been executed on this machine; native tests run the actual packaged application used by the installer. See [validation](docs/VALIDATION.md) for the specific test coverage.
+## Help shape Tandem
 
-Only GitHub PR links are supported. Status refresh uses an existing GitHub CLI login where available and the Electron network stack for public requests in the desktop application. Unavailable status remains **Unverified**. The app does not push, merge, run project setup scripts or infer CI/deployment readiness.
+Try it on a real task that spans two repositories. Tell us which step saved time, where you still switched tools, and whether the handoff helped. [Share a workflow](https://github.com/xiao-zi-chen/Tandem/issues/new?template=feature_request.yml) or [report a bug](https://github.com/xiao-zi-chen/Tandem/issues/new?template=bug_report.yml) in **English or Chinese**.
 
-Worktrees do not isolate dependencies, ports or databases. General worktree deletion remains with the user's Git tools. Recovery only removes unchanged resources created by a failed operation.
+Documentation, translation, and focused fixes are welcome. Read the [development guide](CONTRIBUTING.md) before preparing a change.
 
-## Develop and verify
-
-Development uses Node.js 24 LTS and Git. The application uses React, TypeScript and Electron, with the Git service running directly in the desktop main process.
-
-```sh
-npm ci
-node node_modules/electron/install.js
-npm run desktop:dev
-```
-
-```sh
-npm test
-npm run build
-npx playwright install chromium
-npm run test:e2e
-npm run desktop:dist
-npm run test:desktop
-npm run release:manifest
-```
-
-When downloading Electron through an HTTP(S) proxy on Node.js 24, `NODE_USE_ENV_PROXY=1` may be needed. Installer users already have the runtime bundled.
-
-`npm run dev` remains available as a browser preview. Tests use temporary directories and independent Git repositories. GitHub Actions runs Windows checks for source changes; the manual release workflow builds a version tag and prepares a draft release.
-
-## Feedback and project status
-
-[Report an issue or describe a workflow](https://github.com/xiao-zi-chen/Tandem/issues/new/choose) in English or Chinese. Include the Tandem and Git versions from Settings and reproducible steps. [Development and release guide](CONTRIBUTING.md).
-
-This is an early release for real-task evaluation. The project is currently **UNLICENSED**; the owner has not yet selected an open-source license. Third-party dependencies retain their own licenses.
+**Project status:** early Windows preview, intended for real-task evaluation. The project is **UNLICENSED**; the owner has not selected an open-source license. Third-party dependencies retain their own licenses.

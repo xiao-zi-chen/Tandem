@@ -1,0 +1,8 @@
+﻿blank_issues_enabled: true
+contact_links:
+  - name: Quick start / 快速上手
+    url: https://github.com/xiao-zi-chen/Tandem/blob/main/docs/README.md
+    about: Installation, your first task, and troubleshooting in both languages / 中英文安装、首个任务与常见问题
+  - name: Downloads and release notes / 下载与版本说明
+    url: https://github.com/xiao-zi-chen/Tandem/releases
+    about: Windows preview installers and checksums / Windows 预览版安装包与校验文件
