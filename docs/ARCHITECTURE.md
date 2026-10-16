@@ -40,7 +40,13 @@ The Windows build is produced by electron-builder as a branded executable and NS
 
 ## Native integration
 
+The 0.4 review workspace groups file identity by binding ID and path, so identical paths in different repositories remain distinct. Diff requests have cancellation signals; only the current selection's response is rendered. Refreshing the same file retains its current content until the response arrives. Cancellation stops the renderer request; Git reads already running in the service still finish under the existing concurrency limit.
+
+The same parsed diff drives unified and paired columns. Side-by-side rows retain source line numbers, insertion/deletion gaps and metadata. Rendering begins with 500 rows and offers explicit expansion. Layout and wrapping preferences use the stable local application origin.
+
 Native IPC validates the sending window and data shapes. Folder paths come from system dialogs. Save destinations come from system save dialogs; the renderer cannot pass an arbitrary destination path. Clipboard integration is write-only. Native context menus provide ordinary edit actions.
+
+Opening a worktree accepts only a task ID and binding ID. The main process looks up the saved path, verifies it is an existing directory and checks the OS open result. IPC failures reject with plain structured objects: custom properties on Error objects do not survive Electron's context bridge.
 
 External windows are denied and permitted GitHub/Git links open in the system browser. Navigation away from the packaged origin, webviews and permission requests are blocked. The desktop network adapter uses Electron's network stack for public PR requests.
 

@@ -1,8 +1,8 @@
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-if exist "release\0.3.2\win-unpacked\Tandem.exe" (
-  start "" "%~dp0release\0.3.2\win-unpacked\Tandem.exe"
+if exist "release\0.4.0\win-unpacked\Tandem.exe" (
+  start "" "%~dp0release\0.4.0\win-unpacked\Tandem.exe"
   exit /b
 )
 if exist "release\win-unpacked\Tandem.exe" (

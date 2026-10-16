@@ -14,13 +14,13 @@ import {
 import { join, resolve, relative, isAbsolute, sep, extname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { mkdirSync } from 'node:fs';
-import { writeFile, access, readdir, readFile } from 'node:fs/promises';
+import { writeFile, access, readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { z } from 'zod';
 import { startApplication } from '../server/app';
 import { stateSchema } from '../server/state-schema';
-import { describeError } from '../server/errors';
+import { AppError, describeError } from '../server/errors';
 import type { DesktopAction } from '../shared/desktop';
 import {
   PreferenceStore,
@@ -326,7 +326,27 @@ async function main() {
     };
   });
   handle('tandem:reveal-data', async () => {
-    await shell.openPath(dataDirectory);
+    const error = await shell.openPath(dataDirectory);
+    if (error) throw new AppError('OPEN_DIRECTORY_FAILED');
+  });
+  handle('tandem:open-worktree', async (_event, payload) => {
+    const { taskId, bindingId } = z
+      .object({ taskId: z.string().uuid(), bindingId: z.string().uuid() })
+      .strict()
+      .parse(payload);
+    const binding = application!.service
+      .task(taskId)
+      .bindings.find((item) => item.id === bindingId);
+    if (!binding) throw new AppError('BINDING_NOT_FOUND');
+    let directory: string;
+    try {
+      directory = await realpath(binding.worktreePath);
+      if (!(await stat(directory)).isDirectory()) throw new Error('Not a directory');
+    } catch {
+      throw new AppError('PATH_NOT_FOUND');
+    }
+    const error = await shell.openPath(directory);
+    if (error) throw new AppError('OPEN_DIRECTORY_FAILED');
   });
   handle('tandem:switch-data', async () => {
     const result = await dialog.showOpenDialog(mainWindow!, {

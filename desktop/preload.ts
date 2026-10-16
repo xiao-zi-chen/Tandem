@@ -5,11 +5,12 @@ import type { Locale } from '../shared/types';
 async function invoke<T>(channel: string, payload?: unknown): Promise<T> {
   const result = await ipcRenderer.invoke(channel, payload);
   if (!result?.ok) {
-    const error = Object.assign(new Error(result?.error?.code || 'INTERNAL_ERROR'), {
+    // Error subclasses lose custom properties across contextBridge. A plain
+    // rejection keeps the structured code/details available to the renderer.
+    throw {
       code: result?.error?.code || 'INTERNAL_ERROR',
       details: result?.error?.details,
-    });
-    throw error;
+    };
   }
   return result.value;
 }
@@ -26,6 +27,7 @@ const bridge: DesktopBridge = {
   copyText: (text) => invoke('tandem:copy-text', text),
   info: () => invoke('tandem:info'),
   revealDataDirectory: () => invoke('tandem:reveal-data'),
+  openWorktree: (request) => invoke('tandem:open-worktree', request),
   switchDataDirectory: () => invoke('tandem:switch-data'),
   onAction: (callback) => {
     const handler = (_event: Electron.IpcRendererEvent, action: DesktopAction) => callback(action);

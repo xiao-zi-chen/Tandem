@@ -24,6 +24,7 @@ export interface DesktopBridge {
   copyText(text: string): Promise<void>;
   info(): Promise<DesktopInfo>;
   revealDataDirectory(): Promise<void>;
+  openWorktree(request: { taskId: string; bindingId: string }): Promise<void>;
   switchDataDirectory(): Promise<boolean>;
   onAction(callback: (action: DesktopAction) => void): () => void;
   onLocale(callback: (locale: Locale) => void): () => void;

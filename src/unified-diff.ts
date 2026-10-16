@@ -6,6 +6,41 @@ export interface DiffLine {
   next: string;
 }
 
+export interface SplitDiffRow {
+  type: 'change' | 'context' | 'meta' | 'hunk';
+  left?: DiffLine;
+  right?: DiffLine;
+  text?: string;
+}
+
+export function splitDiffRows(lines: DiffLine[]): SplitDiffRow[] {
+  const rows: SplitDiffRow[] = [];
+  let removed: DiffLine[] = [],
+    added: DiffLine[] = [];
+  const flush = () => {
+    for (let index = 0; index < Math.max(removed.length, added.length); index++)
+      rows.push({ type: 'change', left: removed[index], right: added[index] });
+    removed = [];
+    added = [];
+  };
+  for (const line of lines) {
+    if (line.type === 'remove') {
+      if (added.length) flush();
+      removed.push(line);
+    } else if (line.type === 'add') added.push(line);
+    else {
+      flush();
+      rows.push(
+        line.type === 'context'
+          ? { type: 'context', left: line, right: line }
+          : { type: line.type, text: line.line },
+      );
+    }
+  }
+  flush();
+  return rows;
+}
+
 export function parseUnifiedDiff(text: string): DiffLine[] {
   const result: DiffLine[] = [];
   let oldNumber = 0;

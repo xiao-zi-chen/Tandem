@@ -25,7 +25,7 @@ async function connect() {
 
 export async function api<T>(
   path: string,
-  options: { method?: string; body?: unknown } = {},
+  options: { method?: string; body?: unknown; signal?: AbortSignal } = {},
   retry = true,
 ): Promise<T> {
   try {
@@ -37,7 +37,9 @@ export async function api<T>(
         ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-      signal: AbortSignal.timeout(120000),
+      signal: options.signal
+        ? AbortSignal.any([options.signal, AbortSignal.timeout(120000)])
+        : AbortSignal.timeout(120000),
     });
     const data = await response.json();
     if (response.status === 403 && data.code === 'FORBIDDEN' && retry) {

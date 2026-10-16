@@ -374,8 +374,141 @@ test('a renamed file is found by its old path and header-like code stays visible
   await page.locator('.task-card').filter({ hasText: 'Resume customer branch' }).click();
   await page.getByRole('tab', { name: /Changes/ }).click();
   await page.getByLabel('Filter files…').fill('previous-name');
-  await expect(page.locator('.changed-file-list button')).toHaveCount(1);
+  await expect(page.locator('.review-file')).toHaveCount(1);
   await expect(page.locator('.diff-toolbar')).toContainText('current-name.txt');
   await expect(page.locator('.diff-table .remove .line-content')).toHaveText('-- old heading');
   await expect(page.locator('.diff-table .add .line-content')).toHaveText('++ new heading');
+});
+
+test('review groups repositories, distinguishes identical paths and remembers display preferences', async ({
+  page,
+  request,
+}) => {
+  const { token } = await (await request.get('/api/bootstrap')).json();
+  const state = await (
+    await request.get('/api/state', { headers: { 'x-tandem-token': token } })
+  ).json();
+  const task = state.tasks.find((task: any) => task.titleEn === 'Add annual billing');
+  for (let i = 0; i < task.bindings.length; i++)
+    await writeFile(
+      join(task.bindings[i].worktreePath, 'same-name.txt'),
+      `Repository ${i} independent content\n${'Long line for wrap verification. '.repeat(12)}\n`,
+    );
+  await page.goto('/');
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.locator('.task-card').filter({ hasText: 'Add annual billing' }).click();
+  await page.getByRole('tab', { name: /Changes/ }).click();
+  await expect(page.locator('.file-group')).toHaveCount(2);
+  await page
+    .locator('.file-group')
+    .filter({ hasText: 'fieldnotes-web' })
+    .getByRole('button', { name: /same-name.txt/ })
+    .click();
+  await expect(page.locator('.diff-table')).toContainText('Repository 0 independent content');
+  await page
+    .locator('.file-group')
+    .filter({ hasText: 'fieldnotes-api' })
+    .getByRole('button', { name: /same-name.txt/ })
+    .click();
+  await expect(page.locator('.diff-table')).toContainText('Repository 1 independent content');
+  await expect(page.locator('.diff-table')).not.toContainText('Repository 0 independent content');
+  await page.getByRole('button', { name: 'Side-by-side diff', exact: true }).click();
+  await page.getByRole('button', { name: 'Wrap long lines', exact: true }).click();
+  await expect(page.locator('.split-diff')).toContainText('Repository 1 independent content');
+  await page.getByRole('button', { name: 'Focus on changes', exact: true }).click();
+  await expect(page.locator('.task-list')).not.toBeVisible();
+  await expect(page.locator('.task-detail h2')).toHaveText('Add annual billing');
+  expect(
+    await page
+      .locator('.split-diff pre')
+      .evaluateAll((elements) =>
+        elements.every((element) => element.scrollWidth <= element.clientWidth + 1),
+      ),
+  ).toBe(true);
+  await page.getByRole('button', { name: 'Exit focus view', exact: true }).click();
+  await expect(page.locator('.task-list')).toBeVisible();
+  await page.reload();
+  await page.getByRole('tab', { name: /Changes/ }).click();
+  await expect(
+    page.getByRole('button', { name: 'Side-by-side diff', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Wrap long lines', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.split-diff')).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('button', { name: '中文', exact: true }).click();
+  await expect(page.getByRole('button', { name: '并排差异', exact: true })).toBeVisible();
+});
+
+test('background refresh retains the current diff and switching files cannot show an old response', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.locator('.task-card').filter({ hasText: 'Add annual billing' }).click();
+  await page.getByRole('tab', { name: /Changes/ }).click();
+  const web = page
+    .locator('.file-group')
+    .filter({ hasText: 'fieldnotes-web' })
+    .getByRole('button', { name: /same-name.txt/ });
+  const backend = page
+    .locator('.file-group')
+    .filter({ hasText: 'fieldnotes-api' })
+    .getByRole('button', { name: /same-name.txt/ });
+  await web.click();
+  await expect(page.locator('.diff-table')).toContainText('Repository 0 independent content');
+  let release!: () => void, observed!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requested = new Promise<void>((resolve) => {
+    observed = resolve;
+  });
+  await page.route('**/api/tasks/*/diff/*', async (route) => {
+    observed();
+    await gate;
+    await route.continue().catch(() => {});
+  });
+  try {
+    await page.locator('.detail-tools button').first().click();
+    await requested;
+    await expect(page.locator('.diff-table')).toContainText('Repository 0 independent content');
+    await backend.click();
+    await expect(page.locator('.diff-table')).not.toBeVisible();
+  } finally {
+    release();
+  }
+  await expect(page.locator('.diff-table')).toContainText('Repository 1 independent content');
+  await expect(page.locator('.diff-table')).not.toContainText('Repository 0 independent content');
+});
+
+test('large diffs render in batches without omitting the remaining lines', async ({
+  page,
+  request,
+}) => {
+  const { token } = await (await request.get('/api/bootstrap')).json();
+  const state = await (
+    await request.get('/api/state', { headers: { 'x-tandem-token': token } })
+  ).json();
+  const task = state.tasks.find((task: any) => task.titleEn === 'Add annual billing');
+  await writeFile(
+    join(task.bindings[0].worktreePath, 'large-review.txt'),
+    Array.from({ length: 1200 }, (_, index) => `review line ${index + 1}`).join('\n'),
+  );
+  await page.goto('/');
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.locator('.task-card').filter({ hasText: 'Add annual billing' }).click();
+  await page.getByRole('tab', { name: /Changes/ }).click();
+  await page.getByLabel('Filter files…').fill('large-review');
+  await expect(page.locator('.diff-table tbody tr')).toHaveCount(500);
+  await page.getByRole('button', { name: 'Show more lines', exact: true }).click();
+  await expect(page.locator('.diff-table tbody tr')).toHaveCount(1000);
+  await page.getByRole('button', { name: 'Show more lines', exact: true }).click();
+  await expect(page.locator('.diff-table')).toContainText('review line 1200');
+  await expect(
+    page.getByRole('button', { name: 'Show more lines', exact: true }),
+  ).not.toBeVisible();
 });

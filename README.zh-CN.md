@@ -4,15 +4,15 @@
 
 Windows x64 · 简体中文 / English · 无需注册账号
 
-**0.3.2** 修复 Windows 路径别名下的恢复问题，完善任务搜索与差异显示。[更新记录](docs/RELEASE-0.3.2.md) · [数据可靠性](docs/RELIABILITY-0.3.md)。升级前请先退出旧版本。
+**0.4.0** 升级多仓库变更审阅，提供并排差异、长行换行、专注阅读和工作目录快捷操作。[更新记录](docs/RELEASE-0.4.0.md) · [数据可靠性](docs/RELIABILITY-0.3.md)。升级前请先退出旧版本。
 
 [English](README.md) · [界面调整](docs/PRODUCT.md) · [实现结构](docs/ARCHITECTURE.md) · [验证记录](docs/VALIDATION.md)
 
-![桌面工作台](docs/screenshots-v3/desktop-workspace-zh.png)
+![桌面工作台](docs/screenshots-v4/desktop-review-zh.png)
 
 ## 安装和运行
 
-从 [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.2) 下载 [Windows x64 安装包](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.2/Tandem-Setup-0.3.2-x64.exe)，按安装向导选择目录。同页提供校验文件与构建信息。安装后连接仓库即可创建任务；也可以先打开示例工作台熟悉流程。
+从 [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0) 下载 [Windows x64 安装包](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe)，按安装向导选择目录。同页提供校验文件与构建信息。安装后连接仓库即可创建任务；也可以先打开示例工作台熟悉流程。
 
 程序内置 Electron 运行时，使用时**不需要安装 Node.js 或 Python**。本机需要安装 Git，并能通过 PATH 找到；可以在「设置」查看检测结果。安装包目前未签名。
 
@@ -25,7 +25,7 @@ Windows x64 · 简体中文 / English · 无需注册账号
 
    在「创建新工作区」中勾选「使用已有分支」，可选择未被其他 worktree 占用的本地分支；回滚不会删除这个原有分支。
 
-3. 在任务中查看每个仓库的工作区、暂存区、新文件和分支累计差异。文件列表支持筛选，重命名会保留原路径信息。
+3. 在同一文件列表中查看全部仓库，按仓库名或新旧路径筛选，并切换统一或并排差异。工作区、暂存区、新文件和分支累计变更仍分开呈现。
 4. 关联各仓库的 GitHub PR，填写检查清单与任务备注。
 5. 使用系统保存对话框导出 Markdown 交接单，或通过原生剪贴板复制；同事无需安装同序也能阅读。
 6. 归档只整理任务列表，保留原有工作目录、分支与修改。
@@ -33,6 +33,8 @@ Windows x64 · 简体中文 / English · 无需注册账号
 按 **Ctrl+K** 搜索任务名、仓库、分支或关联 PR；可组合输入 `web #123`，用方向键与回车打开结果。常用仓库组合可以保存，下一次从组合直接创建任务。
 
 首次也可以打开示例工作台。示例包含两个真实的本地 Git 仓库与三个任务，显示的差异来自 Git；示例代码不是已经配置好运行环境的前后端应用。
+
+使用「专注查看变更」扩大审阅区域，「长行自动换行」让代码适应列宽；重启后保留阅读偏好。大差异分批显示 500 行，并提供明确的「继续显示更多行」操作。目录与复制图标作用于当前仓库的工作目录。
 
 ## 桌面功能
 

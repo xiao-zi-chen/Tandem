@@ -2,7 +2,7 @@ import { APP_VERSION } from '../../shared/version';
 import assert from 'node:assert/strict';
 import { _electron as electron, type ElectronApplication } from 'playwright';
 import { expect } from '@playwright/test';
-import { mkdtemp, mkdir, readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, realpath } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, basename } from 'node:path';
@@ -23,7 +23,7 @@ const env: Record<string, string> = {
 };
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.TANDEM_DATA_DIR;
-const screenshots = resolve('docs/screenshots-v3');
+const screenshots = resolve('docs/screenshots-v4');
 await mkdir(screenshots, { recursive: true });
 const results: string[] = [];
 let instance: ElectronApplication | undefined;
@@ -83,7 +83,82 @@ try {
   await expect(page.locator('.task-detail h2')).toHaveText('Add annual billing');
   results.push('Native search shortcut finds a task across repositories with keyboard navigation');
 
+  const sampleState = JSON.parse(await readFile(join(info.dataDirectory, 'state.json'), 'utf8'));
+  const annualTask = sampleState.tasks.find((task: any) => task.titleEn === 'Add annual billing');
+  const firstBinding = annualTask.bindings[0];
+  await page
+    .locator('.bound-repo')
+    .first()
+    .getByRole('button', { name: 'Copy working directory path' })
+    .click();
+  assert.equal(
+    await instance.evaluate(({ clipboard }) => clipboard.readText()),
+    firstBinding.worktreePath,
+  );
+  await instance.evaluate(({ shell }) => {
+    (globalThis as any).__openPath = shell.openPath;
+    (globalThis as any).__openedDirectories = [];
+    shell.openPath = async (path) => {
+      (globalThis as any).__openedDirectories.push(path);
+      return '';
+    };
+  });
+  await page
+    .locator('.bound-repo')
+    .first()
+    .getByRole('button', { name: 'Open working directory' })
+    .click();
+  await expect
+    .poll(() => instance!.evaluate(() => (globalThis as any).__openedDirectories[0]))
+    .toBe(await realpath(firstBinding.worktreePath));
+  const invalid = await page.evaluate(
+    async ({ taskId }) => {
+      try {
+        await window.tandem!.openWorktree({ taskId, bindingId: crypto.randomUUID() });
+        return 'allowed';
+      } catch (error: any) {
+        return error.code;
+      }
+    },
+    { taskId: annualTask.id },
+  );
+  assert.equal(invalid, 'BINDING_NOT_FOUND');
+  const arbitrary = await page.evaluate(
+    async ({ taskId, bindingId }) => {
+      try {
+        await window.tandem!.openWorktree({ taskId, bindingId, path: 'C:\\' } as any);
+        return 'allowed';
+      } catch (error: any) {
+        return error.code;
+      }
+    },
+    { taskId: annualTask.id, bindingId: firstBinding.id },
+  );
+  assert.equal(arbitrary, 'VALIDATION');
+  await instance.evaluate(({ shell }) => {
+    shell.openPath = async () => 'System open failed';
+  });
+  await page
+    .locator('.bound-repo')
+    .first()
+    .getByRole('button', { name: 'Open working directory' })
+    .click();
+  await expect(page.getByRole('alert')).toContainText('system could not open');
+  await page
+    .locator('.bound-repo')
+    .first()
+    .getByRole('button', { name: 'Copy working directory path' })
+    .click();
+  await expect(page.getByRole('alert')).not.toBeVisible();
+  await instance.evaluate(({ shell }) => {
+    shell.openPath = (globalThis as any).__openPath;
+  });
+  results.push(
+    'Working-directory clipboard and validated folder IPC reject arbitrary paths and report OS failures',
+  );
+
   await page.getByRole('tab', { name: /Changes/ }).click();
+  await expect(page.locator('.file-group')).toHaveCount(2);
   await expect(page.locator('.diff-table')).toContainText('BillingCycle');
   await page.getByLabel('Filter files…').fill('billing-toggle');
   await expect(page.locator('.diff-table')).toContainText('billingOptions');
@@ -92,6 +167,29 @@ try {
   await expect(page.locator('.diff-table')).toContainText('ANNUAL_BILLABLE_MONTHS');
   await page.screenshot({ path: join(screenshots, 'desktop-changes-en.png') });
   results.push('Working, untracked and staged diffs with file filtering');
+
+  await page.locator('.changes-repos').getByRole('button', { name: 'All repositories' }).click();
+  await page
+    .locator('.file-group')
+    .filter({ hasText: 'fieldnotes-api' })
+    .locator('.review-file')
+    .first()
+    .click();
+  await page.getByRole('button', { name: 'Side-by-side diff', exact: true }).click();
+  await page.getByRole('button', { name: 'Wrap long lines', exact: true }).click();
+  await page.getByRole('button', { name: 'Focus on changes', exact: true }).click();
+  await expect(page.locator('.task-list')).not.toBeVisible();
+  await expect(page.locator('.task-detail h2')).toHaveText('Add annual billing');
+  await expect(page.locator('.split-diff')).toContainText('ANNUAL_BILLABLE_MONTHS');
+  await expect(page.locator('.toast')).not.toBeVisible();
+  await page.screenshot({ path: join(screenshots, 'desktop-review-en.png') });
+  await page.getByRole('button', { name: '中文', exact: true }).click();
+  await page.screenshot({ path: join(screenshots, 'desktop-review-zh.png') });
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.getByRole('button', { name: 'Exit focus view', exact: true }).click();
+  results.push(
+    'Cross-repository review, side-by-side changes, wrapping and focus mode in both languages',
+  );
 
   await page.getByRole('button', { name: 'Export handoff' }).click();
   await expect(page.locator('.handoff-preview')).toContainText('Linked pull requests');
@@ -230,6 +328,15 @@ try {
     BrowserWindow.getAllWindows()[0].getSize(),
   );
   assert.deepEqual(size, expectedSize);
+  await reopened.getByRole('tab', { name: /变更/ }).click();
+  await expect(reopened.getByRole('button', { name: '并排差异', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(reopened.getByRole('button', { name: '长行自动换行', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   results.push('Language, window size and repository/task data survive an application restart');
   console.log(
     JSON.stringify(

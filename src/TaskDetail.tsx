@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Archive,
   ArrowDownToLine,
@@ -8,34 +8,24 @@ import {
   ChevronDown,
   Code2,
   Copy,
-  FileCode2,
-  FilePlus2,
   FolderGit2,
   GitBranch,
   GitPullRequest,
   Pencil,
   Plus,
   RefreshCw,
-  Search,
   RotateCcw,
   Share2,
   StickyNote,
   X,
 } from 'lucide-react';
-import type {
-  Binding,
-  BindingStatus,
-  DiffResult,
-  Locale,
-  State,
-  Task,
-  TaskDetail as DetailData,
-} from '../shared/types';
+import type { Binding, Locale, State, Task, TaskDetail as DetailData } from '../shared/types';
 import { api, download, copyText } from './api';
 import { ErrorMessage, Spinner } from './components';
 import { taskTitle, type Messages } from './i18n';
 import { useNoteDraft } from './useNoteDraft';
-import { parseUnifiedDiff } from './unified-diff';
+import { ChangesPanel } from './ChangesPanel';
+import { WorktreeActions } from './WorktreeActions';
 
 interface Props {
   task: Task;
@@ -363,8 +353,8 @@ export function TaskDetail({
                           try {
                             await copyText(s?.branch || binding.branch);
                             notify(t.copied);
-                          } catch {
-                            /* Clipboard may be unavailable. */
+                          } catch (error) {
+                            setError(error);
                           }
                         }}
                       >
@@ -414,6 +404,11 @@ export function TaskDetail({
                       <span title={t.upstream}>
                         {s.ahead === null ? t.noUpstream : `↑ ${s.ahead}  ↓ ${s.behind}`}
                       </span>
+                      <WorktreeActions
+                        taskId={task.id}
+                        {...{ binding, t, notify }}
+                        onError={setError}
+                      />
                     </div>
                   )}
                   {s?.error && <ErrorMessage error={{ code: s.error }} t={t} />}
@@ -594,249 +589,8 @@ export function TaskDetail({
           </div>
         </div>
       ) : (
-        <ChangesPanel key={task.id} {...{ task, state, statuses, t, refresh, revision }} />
+        <ChangesPanel key={task.id} {...{ task, state, statuses, t, refresh, revision, notify }} />
       )}
     </section>
-  );
-}
-
-function ChangesPanel({
-  task,
-  state,
-  statuses,
-  t,
-  refresh,
-  revision,
-}: {
-  task: Task;
-  state: State;
-  statuses: BindingStatus[];
-  t: Messages;
-  refresh: number;
-  revision: number;
-}) {
-  const [bindingId, setBindingId] = useState(task.bindings[0].id);
-  const binding = task.bindings.find((b) => b.id === bindingId) || task.bindings[0];
-  const current = statuses.find((s) => s.bindingId === binding.id);
-  const [scope, setScope] = useState<'working' | 'branch'>('working');
-  const [fileQuery, setFileQuery] = useState('');
-  const [selectedPath, setSelectedPath] = useState(''),
-    [layer, setLayer] = useState<'working' | 'staged' | undefined>();
-  const files =
-    scope === 'working'
-      ? current?.files.map((f) => ({
-          path: f.path,
-          originalPath: f.originalPath,
-          status: f.untracked ? 'U' : f.index !== ' ' ? f.index : f.worktree,
-        })) || []
-      : current?.branchFiles || [];
-  const visibleFiles = files.filter((file) =>
-    [file.path, file.originalPath || ''].some((path) =>
-      path.toLowerCase().includes(fileQuery.toLowerCase()),
-    ),
-  );
-  const file = visibleFiles.find((f) => f.path === selectedPath) || visibleFiles[0];
-  const workingFile = current?.files.find((f) => f.path === file?.path);
-  const hasStaged = !!workingFile && workingFile.index !== ' ' && workingFile.index !== '?';
-  const hasUnstaged = !!workingFile && workingFile.worktree !== ' ';
-  const mode =
-    scope === 'branch'
-      ? 'branch'
-      : layer && ((layer === 'working' && hasUnstaged) || (layer === 'staged' && hasStaged))
-        ? layer
-        : hasUnstaged
-          ? 'working'
-          : 'staged';
-  const [diff, setDiff] = useState<DiffResult>(),
-    [error, setError] = useState<unknown>(),
-    [loading, setLoading] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    setDiff(undefined);
-    setError(undefined);
-    if (!file) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    api<DiffResult>(
-      `/tasks/${task.id}/diff/${binding.id}?file=${encodeURIComponent(file.path)}&mode=${mode}`,
-    )
-      .then((result) => {
-        if (alive) setDiff(result);
-      })
-      .catch((error) => {
-        if (alive) setError(error);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [task.id, binding.id, file?.path, mode, refresh, revision, statuses]);
-  return (
-    <div className="changes-panel" role="tabpanel">
-      <div className="changes-repos">
-        {task.bindings.map((b) => (
-          <button
-            key={b.id}
-            className={b.id === binding.id ? 'selected' : ''}
-            onClick={() => {
-              setBindingId(b.id);
-              setFileQuery('');
-              setSelectedPath('');
-              setLayer(undefined);
-            }}
-          >
-            <FolderGit2 size={14} />
-            {state.repositories.find((r) => r.id === b.repositoryId)?.name}
-          </button>
-        ))}
-      </div>
-      <div className="change-scope">
-        <div className="segmented">
-          <button
-            className={scope === 'working' ? 'selected' : ''}
-            onClick={() => {
-              setScope('working');
-              setSelectedPath('');
-            }}
-          >
-            {t.working}
-            <span>{current?.files.length || 0}</span>
-          </button>
-          <button
-            className={scope === 'branch' ? 'selected' : ''}
-            onClick={() => {
-              setScope('branch');
-              setSelectedPath('');
-            }}
-          >
-            {t.branchChanges}
-            <span>{current?.branchFiles.length || 0}</span>
-          </button>
-        </div>
-        <p>{t.diffHelp}</p>
-      </div>
-      {current?.error ? (
-        <ErrorMessage error={{ code: current.error }} t={t} />
-      ) : !current ? (
-        <div className="loading-inline">
-          <Spinner />
-          {t.loading}
-        </div>
-      ) : !files.length ? (
-        <div className="empty-diff">
-          <CheckCheck size={32} strokeWidth={1.2} />
-          <h3>{t.noChanges}</h3>
-          <p>{scope === 'working' ? t.noChangesBody : t.noBranchChanges}</p>
-        </div>
-      ) : (
-        <>
-          <div className="changed-file-list">
-            <div className="file-filter">
-              <Search size={12} />
-              <input
-                aria-label={t.fileSearch}
-                placeholder={t.fileSearch}
-                value={fileQuery}
-                onChange={(event) => setFileQuery(event.target.value)}
-              />
-            </div>
-            {visibleFiles.map((entry) => (
-              <button
-                className={entry.path === file?.path ? 'selected' : ''}
-                key={entry.path}
-                title={entry.originalPath ? `${entry.originalPath} → ${entry.path}` : entry.path}
-                onClick={() => {
-                  setSelectedPath(entry.path);
-                  setLayer(undefined);
-                }}
-              >
-                {entry.status === 'U' || entry.status === 'A' ? (
-                  <FilePlus2 size={14} />
-                ) : (
-                  <FileCode2 size={14} />
-                )}
-                <span>{entry.path}</span>
-                <b className={`file-state ${entry.status}`}>{entry.status}</b>
-              </button>
-            ))}
-          </div>
-          <div className="diff-box">
-            <div className="diff-toolbar">
-              <span className="mono">{file?.path}</span>
-              {scope === 'working' && workingFile?.untracked ? (
-                <small>{t.untracked}</small>
-              ) : (
-                scope === 'working' && (
-                  <div className="diff-layers">
-                    {hasUnstaged && (
-                      <button
-                        className={mode === 'working' ? 'selected' : ''}
-                        onClick={() => setLayer('working')}
-                      >
-                        {t.unstaged}
-                      </button>
-                    )}
-                    {hasStaged && (
-                      <button
-                        className={mode === 'staged' ? 'selected' : ''}
-                        onClick={() => setLayer('staged')}
-                      >
-                        {t.staged}
-                      </button>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-            {!file ? (
-              <p className="diff-notice">{t.noFilesMatch}</p>
-            ) : loading ? (
-              <div className="loading-inline">
-                <Spinner />
-                {t.loading}
-              </div>
-            ) : error ? (
-              <ErrorMessage {...{ error, t }} />
-            ) : diff?.binary ? (
-              <p className="diff-notice">{t.binaryFile}</p>
-            ) : diff ? (
-              <>
-                <UnifiedDiff text={diff.text} empty={t.noDiff} />
-                {diff.truncated && <p className="diff-notice">{t.truncated}</p>}
-              </>
-            ) : null}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function UnifiedDiff({ text, empty }: { text: string; empty: string }) {
-  const lines = useMemo(() => parseUnifiedDiff(text), [text]);
-  if (!text) return <p className="diff-notice">{empty}</p>;
-  return (
-    <div className="diff-scroll">
-      <table className="diff-table" aria-label="Git diff">
-        <tbody>
-          {lines.map((line) => (
-            <tr className={line.type} key={line.index}>
-              <td className="line-number">{line.old}</td>
-              <td className="line-number">{line.next}</td>
-              <td className="line-sign">
-                {line.type === 'add' ? '+' : line.type === 'remove' ? '−' : ''}
-              </td>
-              <td className="line-content">
-                <pre>{line.line || ' '}</pre>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }

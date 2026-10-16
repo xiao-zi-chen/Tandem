@@ -4,15 +4,15 @@ A local desktop workspace for tasks spanning independent Git repositories. Keep 
 
 Windows x64 · English / 简体中文 · No account required
 
-Version **0.3.2** fixes Windows path aliases during recovery, improves task search and preserves all source lines in the diff viewer. [Release notes](docs/RELEASE-0.3.2.md) · [Data reliability](docs/RELIABILITY-0.3.md). Close older versions before upgrading.
+Version **0.4.0** brings cross-repository review, side-by-side diffs, line wrapping and a focused reading workspace. [Release notes](docs/RELEASE-0.4.0.md) · [Data reliability](docs/RELIABILITY-0.3.md). Close older versions before upgrading.
 
 [简体中文](README.zh-CN.md) · [Design notes](docs/PRODUCT.md) · [Architecture](docs/ARCHITECTURE.md) · [Validation](docs/VALIDATION.md)
 
-![Desktop workspace](docs/screenshots-v3/desktop-workspace-en.png)
+![Desktop workspace](docs/screenshots-v4/desktop-review-en.png)
 
 ## Install
 
-Download the [Windows x64 installer](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.3.2/Tandem-Setup-0.3.2-x64.exe) from [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.3.2). Checksums and build information are available beside it. Install, connect your repositories and create your first task; the optional sample workspace is a quick way to try the workflow.
+Download the [Windows x64 installer](https://github.com/xiao-zi-chen/Tandem/releases/download/v0.4.0/Tandem-Setup-0.4.0-x64.exe) from [GitHub Releases](https://github.com/xiao-zi-chen/Tandem/releases/tag/v0.4.0). Checksums and build information are available beside it. Install, connect your repositories and create your first task; the optional sample workspace is a quick way to try the workflow.
 
 The desktop application includes its Electron runtime. **Users do not need Node.js or Python.** Git must be installed and available on PATH; Settings shows the detected Git version. The installer is currently unsigned.
 
@@ -25,7 +25,7 @@ The installer includes the application icon, version metadata, shortcuts, and an
 
    Select **Use an existing branch** to use an unoccupied local branch. Failure recovery preserves that branch and its original commits.
 
-3. Review unstaged, staged, untracked and committed changes separately. Filter files and inspect both paths of renames.
+3. Review all repositories in one grouped file list. Filter repository names or old/new paths, then read unified or side-by-side diffs. Working, staged, untracked and committed changes remain distinct.
 4. Link GitHub PRs, maintain a checklist and save task notes.
 5. Export a Markdown handoff through a native save dialog or copy it to the system clipboard.
 6. Archive completed tasks without deleting branches or worktrees.
@@ -33,6 +33,8 @@ The installer includes the application icon, version metadata, shortcuts, and an
 Press **Ctrl+K** to find a task by name, repository, branch or linked PR. Combine terms such as `web #123`; use the arrow keys and Enter to open a result. You can save frequently used repository combinations and start another task from them.
 
 The optional sample workspace creates two actual local Git repositories and three tasks. Its displayed changes come from Git; it is a workflow example, not a runnable full-stack application.
+
+Use **Focus on changes** to widen the review area, and **Wrap long lines** to fit code to each column. Reading preferences survive a restart. Large diffs show 500 rows at a time with an explicit **Show more lines** action. The folder and copy icons act on the selected repository’s working directory.
 
 ## Desktop integration
 

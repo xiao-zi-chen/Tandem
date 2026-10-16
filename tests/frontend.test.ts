@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseUnifiedDiff } from '../src/unified-diff';
+import { parseUnifiedDiff, splitDiffRows } from '../src/unified-diff';
 import { matchesTask } from '../src/task-search';
 import type { Repository, Task } from '../shared/types';
 
@@ -110,4 +110,39 @@ test('task search combines bilingual titles, repositories, branches and linked P
     assert.equal(matchesTask(task, repositories, query), true, query);
   }
   assert.equal(matchesTask(task, repositories, 'storefront missing'), false);
+});
+
+test('side-by-side diffs preserve unequal change blocks, context and source line numbers', () => {
+  const lines = parseUnifiedDiff(
+    '@@ -1,4 +1,3 @@\n-old one\n-old two\n+new one\n same\n-end\n+finish\n',
+  );
+  const rows = splitDiffRows(lines);
+  assert.equal(rows[1].left?.line, 'old one');
+  assert.equal(rows[1].right?.line, 'new one');
+  assert.equal(rows[2].left?.line, 'old two');
+  assert.equal(rows[2].right, undefined);
+  assert.equal(rows[3].type, 'context');
+  assert.equal(rows[3].left?.old, '3');
+  assert.equal(rows[3].right?.next, '2');
+  assert.deepEqual(
+    rows.filter((row) => row.left).map((row) => row.left!.line),
+    ['old one', 'old two', 'same', 'end'],
+  );
+  assert.deepEqual(
+    rows.filter((row) => row.right).map((row) => row.right!.line),
+    ['new one', 'same', 'finish'],
+  );
+});
+
+test('side-by-side diffs do not pair changes across hunks or swallow newline notices', () => {
+  const rows = splitDiffRows(
+    parseUnifiedDiff(
+      '@@ -1 +0,0 @@\n-removed\n\\ No newline at end of file\n@@ -10,0 +10 @@\n+added\n',
+    ),
+  );
+  assert.equal(rows[1].left?.line, 'removed');
+  assert.equal(rows[1].right, undefined);
+  assert.equal(rows[2].text, '\\ No newline at end of file');
+  assert.equal(rows[4].left, undefined);
+  assert.equal(rows[4].right?.next, '10');
 });
