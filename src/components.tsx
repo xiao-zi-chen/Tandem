@@ -53,15 +53,15 @@ export function Modal({
   busyRef.current = busy;
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const timer = setTimeout(
-      () =>
-        (
-          ref.current?.querySelector<HTMLElement>(
-            'input:not([disabled]), textarea:not([disabled]), [data-autofocus]',
-          ) || ref.current?.querySelector<HTMLElement>('button:not([disabled])')
-        )?.focus(),
-      50,
-    );
+    const timer = setTimeout(() => {
+      // Preserve a focus choice already made by the user inside the dialog.
+      if (ref.current?.contains(document.activeElement)) return;
+      (
+        ref.current?.querySelector<HTMLElement>(
+          'input:not([disabled]), textarea:not([disabled]), [data-autofocus]',
+        ) || ref.current?.querySelector<HTMLElement>('button:not([disabled])')
+      )?.focus();
+    }, 50);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     function keydown(event: KeyboardEvent) {

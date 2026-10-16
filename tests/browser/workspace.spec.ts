@@ -309,6 +309,8 @@ test('task search finds repositories and PRs and works entirely from the keyboar
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.clock.install();
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
   await page.keyboard.press('Control+k');
   const dialog = page.getByRole('dialog');
   const search = dialog.getByPlaceholder('Find a task…');
@@ -317,6 +319,10 @@ test('task search finds repositories and PRs and works entirely from the keyboar
   await expect(annual).toBeVisible();
   await search.press('ArrowDown');
   await expect(annual).toBeFocused();
+  // Let delayed dialog initialization run after keyboard navigation.
+  await page.clock.runFor(100);
+  await expect(annual).toBeFocused();
+  await page.clock.resume();
   await page.keyboard.press('ArrowUp');
   await expect(search).toBeFocused();
   await search.press('Enter');

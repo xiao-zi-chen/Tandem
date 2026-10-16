@@ -20,6 +20,8 @@
 
 ## Release history / 版本记录
 
+- [Unreleased / 尚未发布](UNRELEASED.md) — changes on `main` since the current installer / 当前安装包发布后的源码改进。
+
 - [0.4.0](RELEASE-0.4.0.md) — cross-repository review / 跨仓库变更审阅。
 - [0.3.2](RELEASE-0.3.2.md) — Windows path recovery / Windows 路径恢复。
 - [0.3.1](RELEASE-0.3.1.md) — earlier desktop changes / 早期桌面改进。
